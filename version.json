@@ -1,12 +1,6 @@
 {
-<<<<<<< HEAD
     "version": "1.0.3",
     "build": 4,
     "release_date": "2026-10-13"
 }
-=======
-    "version": "1.0.0",
-    "build": 1,
-    "release_date": "2026-10-12"
-}
->>>>>>> 14f6f08 (Update v1.0.2)
+
