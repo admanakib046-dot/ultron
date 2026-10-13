@@ -3,27 +3,38 @@ import requests
 
 class GithubChecker:
 
-    URL = "https://api.github.com/repos/YOUR_USERNAME/Ultron/releases/latest"
+    BASE = "https://raw.githubusercontent.com/admanakib046-dot/ultron/main"
 
     def check(self):
 
         try:
 
-            r = requests.get(self.URL, timeout=10)
+            version_url = self.BASE + "/version.json"
+            modules_url = self.BASE + "/modules.json"
+            changelog_url = self.BASE + "/CHANGELOG.md"
 
-            if r.status_code != 200:
-                return None
+            version_response = requests.get(version_url, timeout=10)
+            modules_response = requests.get(modules_url, timeout=10)
+            changelog_response = requests.get(changelog_url, timeout=10)
 
-            data = r.json()
+            print("Version URL:", version_url)
+            print(version_response.status_code)
+            print(version_response.text)
+
+            print("Modules URL:", modules_url)
+            print(modules_response.status_code)
+            print(modules_response.text)
+
+            version = version_response.json()
+            modules = modules_response.json()
+            changelog = changelog_response.text
 
             return {
-
-                "version": data["tag_name"],
-                "name": data["name"],
-                "notes": data["body"]
-
+                "version": version,
+                "modules": modules,
+                "notes": changelog
             }
-
         except Exception:
-
-            return None
+         import traceback
+        traceback.print_exc()
+        return None

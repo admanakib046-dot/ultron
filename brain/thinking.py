@@ -25,16 +25,17 @@ from plugin.plugin_manager import PluginManager
 
 from core.services import Services
 
+from updater.update_manager import UpdateManager
+from updater.evolution import Evolution
+
 from tasks.task_planner import TaskPlanner
 from tasks.task_queue import TaskQueue
 from tasks.task_executor import TaskExecutor
-from updater.update_manager import UpdateManager
 
 
 class Thinking:
 
     def __init__(self):
-        self.updater = UpdateManager()
 
         # ==========================
         # Core
@@ -89,9 +90,10 @@ class Thinking:
         self.logger = Logger()
 
         # ==========================
-        # Updater
+        # Updater / Evolution
         # ==========================
-        
+        self.updater = UpdateManager()
+        self.evolution = Evolution()
 
         # ==========================
         # Services
@@ -125,27 +127,64 @@ class Thinking:
         # ==========================
         # Updates
         # ==========================
-        if command.lower() == "check updates":
-            info = self.updater.check()
+        if cmd == "check updates":
 
-            if not info:
-                return "No updates found."
+         info = self.updater.check()
 
-            return (
-                "New Update Available\n\n"
-                f"Version : {info['version']}\n\n"
-                f"Name :\n{info['name']}\n\n"
-                f"Changes:\n\n{info['notes']}\n\n"
-                "Type:\ninstall update"
-            )
+         if not info:
+          return "Unable to contact GitHub."
 
-        if command.lower() == "install update":
+         if not info["update"]:
+          return (
+          "Ultron is already up to date.\n\n"
+          f"Current Version: {info['current']}"
+    )
+
+         return (
+        f"Current Version : {info['current']}\n\n"
+        f"Latest Version : {info['latest']}\n\n"
+        f"{info['notes']}\n\n"
+        "Type:\ninstall update"
+    )
+
+        if cmd == "install update":
             ok = self.updater.install()
 
             if ok:
                 return "Ultron updated successfully."
 
-            return "Update failed. Previous version restored."
+            return "Update failed."
+
+        # ==========================
+        # Self Evolution
+        # ==========================
+        if cmd == "become smarter":
+            updates = self.evolution.analyze()
+
+            if not updates:
+                return "I couldn't find any improvements."
+
+            text = "I found these improvements:\n\n"
+
+            for u in updates:
+                text += (
+                    f"• {u['module']} ({u['version']})\n"
+                    f"  {u['reason']}\n\n"
+                )
+
+            text += "\nType: evolve"
+            return text
+
+        # ==========================
+        # Install Evolution
+        # ==========================
+        if cmd == "evolve":
+            ok = self.evolution.install()
+
+            if ok:
+                return "Evolution completed successfully."
+
+            return "Evolution failed."
 
         # ==========================
         # Log User
